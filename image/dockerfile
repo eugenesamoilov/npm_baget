@@ -1,0 +1,6 @@
+FROM verdaccio/verdaccio
+USER root
+RUN npm i && npm i verdaccio-ldap && npm i verdaccio-activedirectory
+#COPY conf /verdaccio/conf
+RUN chown -R $VERDACCIO_USER_UID /verdaccio
+USER verdaccio

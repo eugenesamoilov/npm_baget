@@ -1,0 +1,49 @@
+version: '2'
+
+services:
+#NGINX
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    links:
+      - "verdaccio"
+    volumes:
+      - ./nginx/conf.d/:/etc/nginx/conf.d/
+      - ./nginx/ssl/:/etc/nginx/ssl/
+
+
+#VERDACCIO
+  verdaccio:
+    container_name: verdaccio
+    build: ./image
+    restart: always
+    user: "root:root"
+    extra_hosts:
+      - "jeep.aebank.lan:192.168.0.44"
+    expose:
+      - "4873"
+    volumes:
+      - "./storage:/verdaccio/storage"
+      - "./conf:/verdaccio/conf"
+
+#BAGET
+  nuget-server:
+    image: loicsharma/baget
+    container_name: baget
+    restart: always
+    expose:
+      - "80"
+    environment:
+      - ApiKey=6666666666666666666666666666
+      - Storage__Type=FileSystem
+      - Storage__Path=/var/baget/packages
+      - Database__Type=Sqlite
+      - Database__ConnectionString=Data Source=/var/baget/baget.db
+      - Search__Type=Database
+    volumes:
+      - "./baget-data:/var/baget"
